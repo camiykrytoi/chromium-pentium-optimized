@@ -1,53 +1,31 @@
-name: Build Optimized Chromium
+name: Build Chromium
 
 on:
   workflow_dispatch:
     inputs:
       runner_type:
-        description: 'Target Runner'
+        description: 'Runner'
         required: true
         default: 'windows-latest'
         type: choice
         options:
-          - windows-latest
-          - self-hosted
-      ui_style:
-        description: 'UI Style & Theme'
-        required: true
-        default: 'Modern Refresh (Material 3 + Dark Accent)'
-        type: choice
-        options:
-          - 'Modern Refresh (Material 3 + Dark Accent)'
-          - 'Minimalist Compact UI'
-      enable_codecs:
-        description: 'Enable H.264 / HEVC / Widevine DRM'
-        required: true
-        default: true
-        type: boolean
-      enable_memory_saver:
-        description: 'Pre-enable Memory Saver for 4GB RAM'
-        required: true
-        default: true
-        type: boolean
+          - 'windows-latest'
+          - 'self-hosted'
 
 jobs:
   build:
-    name: Build (Runner: ${{ inputs.runner_type }})
-    runs-on: ${{ inputs.runner_type }}
+    name: Build Installer
+    runs-on: ${{ github.event.inputs.runner_type }}
     timeout-minutes: 480
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Display Selected Build Options
+      - name: Show Config
         run: |
-          echo "=== BUILD CONFIGURATION ==="
-          echo "Runner: ${{ inputs.runner_type }}"
-          echo "UI Style: ${{ inputs.ui_style }}"
-          echo "Codecs: ${{ inputs.enable_codecs }}"
-          echo "Memory Saver: ${{ inputs.enable_memory_saver }}"
-          echo "Target CPU: Intel Pentium N3710 (SSE4.2, Airmont, no-AVX)"
+          echo "Target CPU: Intel Pentium N3710 (SSE4.2, Airmont, no AVX)"
+          echo "Selected Runner: ${{ github.event.inputs.runner_type }}"
 
       - name: Install depot_tools
         shell: pwsh
@@ -62,7 +40,7 @@ jobs:
           echo "DEPOT_TOOLS_WIN_TOOLCHAIN=0" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           gclient
 
-      - name: Fetch Chromium Source Tree
+      - name: Fetch Chromium Source
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path C:\chromium
@@ -71,7 +49,7 @@ jobs:
           Set-Location C:\chromium\src
           gclient runhooks
 
-      - name: Apply UI & Preferences Customizations
+      - name: Setup GN Config
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path C:\chromium\src\out\Release
@@ -80,15 +58,15 @@ jobs:
           Set-Location C:\chromium\src
           gn gen out\Release
 
-      - name: Compile mini_installer.exe (autoninja)
+      - name: Compile Installer (autoninja)
         shell: pwsh
         run: |
           Set-Location C:\chromium\src
           autoninja -C out\Release mini_installer
 
-      - name: Upload Chromium Installer
+      - name: Upload Mini Installer
         uses: actions/upload-artifact@v4
         with:
-          name: Chromium-Pentium-N3710-SSE42-CustomUI
+          name: Chromium-Pentium-N3710-SSE42
           path: C:\chromium\src\out\Release\mini_installer.exe
           retention-days: 14
