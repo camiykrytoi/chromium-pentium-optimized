@@ -22,10 +22,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Inspect Available Disk Space
+      - name: Setup Windows SDK Environment
         shell: pwsh
         run: |
-          Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{N='FreeGB';E={[math]::round($_.Free/1GB, 2)}}, @{N='UsedGB';E={[math]::round($_.Used/1GB, 2)}} | Format-Table -AutoSize
+          $sdkPath = "C:\Program Files (x86)\Windows Kits\10\Include"
+          $versions = Get-ChildItem -Path $sdkPath | Sort-Object Name -Descending
+          $latestVersion = $versions[0].Name
+          
+          echo "Found latest SDK version: $latestVersion"
+          echo "WINDOWSSDKDIR=C:\Program Files (x86)\Windows Kits\10" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "WINSDK_VER=$latestVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Install depot_tools (Drive D:)
         shell: pwsh
