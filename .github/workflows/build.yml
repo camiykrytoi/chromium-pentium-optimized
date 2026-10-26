@@ -22,51 +22,53 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Show Config
-        run: |
-          echo "Target CPU: Intel Pentium N3710 (SSE4.2, Airmont, no AVX)"
-          echo "Selected Runner: ${{ github.event.inputs.runner_type }}"
-
-      - name: Install depot_tools
+      - name: Inspect Available Disk Space
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path C:\depot_tools
-          Invoke-WebRequest -Uri "https://storage.googleapis.com/chrome-infra/depot_tools.zip" -OutFile C:\depot_tools\depot_tools.zip
-          Expand-Archive -Path C:\depot_tools\depot_tools.zip -DestinationPath C:\depot_tools -Force
-          Remove-Item C:\depot_tools\depot_tools.zip
-          $env:Path = "C:\depot_tools;" + $env:Path
-          echo "C:\depot_tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{N='FreeGB';E={[math]::round($_.Free/1GB, 2)}}, @{N='UsedGB';E={[math]::round($_.Used/1GB, 2)}} | Format-Table -AutoSize
+
+      - name: Install depot_tools (Drive D:)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path D:\depot_tools
+          Invoke-WebRequest -Uri "https://storage.googleapis.com/chrome-infra/depot_tools.zip" -OutFile D:\depot_tools\depot_tools.zip
+          Expand-Archive -Path D:\depot_tools\depot_tools.zip -DestinationPath D:\depot_tools -Force
+          Remove-Item D:\depot_tools\depot_tools.zip
+          $env:Path = "D:\depot_tools;" + $env:Path
+          echo "D:\depot_tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           $env:DEPOT_TOOLS_WIN_TOOLCHAIN = "0"
           echo "DEPOT_TOOLS_WIN_TOOLCHAIN=0" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           gclient
 
-      - name: Fetch Chromium Source
+      - name: Fetch Chromium Source (Drive D:)
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path C:\chromium
-          Set-Location C:\chromium
+          New-Item -ItemType Directory -Force -Path D:\chromium
+          Set-Location D:\chromium
           fetch --no-history --no-hooks chromium
-          Set-Location C:\chromium\src
+          Set-Location D:\chromium\src
           gclient runhooks
 
       - name: Setup GN Config
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path C:\chromium\src\out\Release
-          Copy-Item -Path args.gn -Destination C:\chromium\src\out\Release\args.gn -Force
-          Copy-Item -Path initial_preferences.json -Destination C:\chromium\src\out\Release\initial_preferences -Force
-          Set-Location C:\chromium\src
+          New-Item -ItemType Directory -Force -Path D:\chromium\src\out\Release
+          Copy-Item -Path args.gn -Destination D:\chromium\src\out\Release\args.gn -Force
+          if (Test-Path initial_preferences.json) {
+            Copy-Item -Path initial_preferences.json -Destination D:\chromium\src\out\Release\initial_preferences -Force
+          }
+          Set-Location D:\chromium\src
           gn gen out\Release
 
       - name: Compile Installer (autoninja)
         shell: pwsh
         run: |
-          Set-Location C:\chromium\src
+          Set-Location D:\chromium\src
           autoninja -C out\Release mini_installer
 
       - name: Upload Mini Installer
         uses: actions/upload-artifact@v4
         with:
           name: Chromium-Pentium-N3710-SSE42
-          path: C:\chromium\src\out\Release\mini_installer.exe
+          path: D:\chromium\src\out\Release\mini_installer.exe
           retention-days: 14
