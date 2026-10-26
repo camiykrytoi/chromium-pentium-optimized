@@ -1,0 +1,32 @@
+{
+  "distribution": {
+    "import_bookmarks": false,
+    "import_history": false,
+    "import_search_engine": false,
+    "make_chrome_default": false,
+    "skip_first_run_ui": true,
+    "suppress_first_run_bubble": true,
+    "do_not_create_desktop_shortcut": false,
+    "do_not_create_quick_launch_shortcut": false
+  },
+  "browser": {
+    "has_seen_welcome_page": true,
+    "theme": {
+      "color_scheme": 1
+    }
+  },
+  "performance_tuning": {
+    "high_efficiency_mode": {
+      "state": 1
+    }
+  },
+  "hardware_acceleration_mode_enabled": true,
+  "default_search_provider_data": {
+    "template_url_data": {
+      "short_name": "Google",
+      "keyword": "google.com",
+      "url": "https://www.google.com/search?q={searchTerms}"
+    }
+  },
+  "enable_do_not_track": true
+}
