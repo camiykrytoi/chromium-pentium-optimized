@@ -1,0 +1,38 @@
+# Configuration for Intel Pentium N3710 (Braswell / Airmont x86-64)
+is_official_build = true
+is_debug = false
+symbol_level = 0
+blink_symbol_level = 0
+target_cpu = "x64"
+
+# Link-Time Optimization
+use_thin_lto = true
+thin_lto_enable_cache = true
+
+# Memory & telemetry optimizations
+enable_nacl = false
+enable_remoting = false
+enable_reporting = false
+google_api_key = ""
+google_default_client_id = ""
+google_default_client_secret = ""
+
+# Target Airmont / Silvermont with strict SSE4.2 and no AVX
+extra_cflags = [
+  "-march=silvermont",
+  "-msse4.2",
+  "-mno-avx",
+  "-mno-avx2",
+  "-mno-fma",
+  "-O3",
+  "-fmerge-all-constants"
+]
+extra_cxxflags = [
+  "-march=silvermont",
+  "-msse4.2",
+  "-mno-avx",
+  "-mno-avx2",
+  "-mno-fma",
+  "-O3",
+  "-fmerge-all-constants"
+]
