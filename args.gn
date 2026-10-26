@@ -1,15 +1,33 @@
-# Configuration for Intel Pentium N3710 (Braswell / Airmont x86-64)
+# ==============================================================================
+# Chromium Build Args for Intel Pentium N3710 (Braswell / Airmont x86-64)
+# Features: SSE4.2 strict, ThinLTO, H.264 Hardware Codecs, Memory-optimized
+# ==============================================================================
+
+# Core Release Config
 is_official_build = true
 is_debug = false
 symbol_level = 0
 blink_symbol_level = 0
 target_cpu = "x64"
 
-# Link-Time Optimization
+# Link-Time Optimization (LTO)
 use_thin_lto = true
 thin_lto_enable_cache = true
 
-# Memory & telemetry optimizations
+# UI & Modern Graphics
+use_aura = true
+use_ozone = false
+enable_paint_preview = true
+
+# Media & Codecs (Crucial for Intel HD 405 hardware video decode!)
+proprietary_codecs = true
+ffmpeg_branding = "Chrome"
+enable_widevine = true
+enable_platform_hevc = true
+media_use_ffmpeg = true
+rtc_use_h264 = true
+
+# Privacy & Memory Optimization (Strip Google Bloat)
 enable_nacl = false
 enable_remoting = false
 enable_reporting = false
@@ -17,7 +35,8 @@ google_api_key = ""
 google_default_client_id = ""
 google_default_client_secret = ""
 
-# Target Airmont / Silvermont with strict SSE4.2 and no AVX
+# Architectural flags for Pentium N3710:
+# Airmont core: SSE4.2, SSSE3, AES, POPCNT. NO AVX/AVX2/FMA!
 extra_cflags = [
   "-march=silvermont",
   "-msse4.2",
@@ -25,7 +44,8 @@ extra_cflags = [
   "-mno-avx2",
   "-mno-fma",
   "-O3",
-  "-fmerge-all-constants"
+  "-fmerge-all-constants",
+  "-fno-semantic-interposition"
 ]
 extra_cxxflags = [
   "-march=silvermont",
