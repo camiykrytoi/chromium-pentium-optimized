@@ -10,6 +10,9 @@ symbol_level = 0
 blink_symbol_level = 0
 target_cpu = "x64"
 
+# Disable official PGO phase to build with custom CPU architecture flags
+chrome_pgo_phase = 0
+
 # Link-Time Optimization (LTO)
 use_thin_lto = true
 thin_lto_enable_cache = true
