@@ -4,22 +4,50 @@ on:
   workflow_dispatch:
     inputs:
       runner_type:
-        description: 'Choose runner'
+        description: 'Target Runner'
         required: true
         default: 'windows-latest'
         type: choice
         options:
           - windows-latest
           - self-hosted
+      ui_style:
+        description: 'UI Style & Theme'
+        required: true
+        default: 'Modern Refresh (Material 3 + Dark Accent)'
+        type: choice
+        options:
+          - 'Modern Refresh (Material 3 + Dark Accent)'
+          - 'Minimalist Compact UI'
+      enable_codecs:
+        description: 'Enable H.264 / HEVC / Widevine DRM'
+        required: true
+        default: true
+        type: boolean
+      enable_memory_saver:
+        description: 'Pre-enable Memory Saver for 4GB RAM'
+        required: true
+        default: true
+        type: boolean
 
 jobs:
   build:
+    name: Build (Runner: ${{ inputs.runner_type }})
     runs-on: ${{ inputs.runner_type }}
     timeout-minutes: 480
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Display Selected Build Options
+        run: |
+          echo "=== BUILD CONFIGURATION ==="
+          echo "Runner: ${{ inputs.runner_type }}"
+          echo "UI Style: ${{ inputs.ui_style }}"
+          echo "Codecs: ${{ inputs.enable_codecs }}"
+          echo "Memory Saver: ${{ inputs.enable_memory_saver }}"
+          echo "Target CPU: Intel Pentium N3710 (SSE4.2, Airmont, no-AVX)"
 
       - name: Install depot_tools
         shell: pwsh
@@ -34,7 +62,7 @@ jobs:
           echo "DEPOT_TOOLS_WIN_TOOLCHAIN=0" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           gclient
 
-      - name: Fetch Chromium Source
+      - name: Fetch Chromium Source Tree
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path C:\chromium
@@ -43,23 +71,24 @@ jobs:
           Set-Location C:\chromium\src
           gclient runhooks
 
-      - name: Setup GN Config
+      - name: Apply UI & Preferences Customizations
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path C:\chromium\src\out\Release
           Copy-Item -Path args.gn -Destination C:\chromium\src\out\Release\args.gn -Force
+          Copy-Item -Path initial_preferences.json -Destination C:\chromium\src\out\Release\initial_preferences -Force
           Set-Location C:\chromium\src
           gn gen out\Release
 
-      - name: Build Installer (autoninja)
+      - name: Compile mini_installer.exe (autoninja)
         shell: pwsh
         run: |
           Set-Location C:\chromium\src
           autoninja -C out\Release mini_installer
 
-      - name: Upload Mini Installer
+      - name: Upload Chromium Installer
         uses: actions/upload-artifact@v4
         with:
-          name: Chromium-Pentium-N3710-SSE42
+          name: Chromium-Pentium-N3710-SSE42-CustomUI
           path: C:\chromium\src\out\Release\mini_installer.exe
-          retention-days: 7
+          retention-days: 14
