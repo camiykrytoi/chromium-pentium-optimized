@@ -12,12 +12,12 @@ file(GLOB WIL_DIR "${CMAKE_SOURCE_DIR}/packages/Microsoft.Windows.Implementation
 
 if(WEBVIEW2_DIR)
     target_include_directories(LightBrowser PRIVATE "${WEBVIEW2_DIR}/build/native/include")
-    # Link against the correct architecture library (assuming x64 for windows-latest)
-    target_link_directories(LightBrowser PRIVATE "${WEBVIEW2_DIR}/build/native/x64")
+    # Define absolute path to the lib
+    set(WEBVIEW2_LIB "${WEBVIEW2_DIR}/build/native/x64/WebView2Loader.lib")
 endif()
 
 if(WIL_DIR)
     target_include_directories(LightBrowser PRIVATE "${WIL_DIR}/include")
 endif()
 
-target_link_libraries(LightBrowser PRIVATE user32.lib shell32.lib WebView2Loader.lib)
+target_link_libraries(LightBrowser PRIVATE user32.lib shell32.lib "${WEBVIEW2_LIB}")
