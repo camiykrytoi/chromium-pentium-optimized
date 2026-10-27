@@ -8,6 +8,7 @@ jobs:
       - name: Install Dependencies
         run: |
           nuget install Microsoft.Web.WebView2 -OutputDirectory packages
+          ls -R packages
       - name: Build
         run: |
           mkdir build
