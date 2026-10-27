@@ -1,10 +1,16 @@
 #include <windows.h>
 #include <wrl.h>
 #include <webview2.h>
-#include <string>
+#include <iostream>
 
-// РџСЂРѕСЃС‚РµР№С€РёР№ Win32 РєР°СЂРєР°СЃ РґР»СЏ WebView2
+using namespace Microsoft::WRL;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
-    MessageBox(NULL, L"РќР°С€ Р»РµРіРєРёР№ Р±СЂР°СѓР·РµСЂ СЂР°Р±РѕС‚Р°РµС‚!", L"LightBrowser", MB_OK);
+    // Basic initialization for a lean browser
+    MessageBox(NULL, L"LightBrowser Initializing...", L"LightBrowser", MB_OK | MB_ICONINFORMATION);
+    
+    // In a real implementation, we'd initialize WebView2 environment here.
+    // For now, this confirms the build pipeline works.
+    
     return 0;
 }
