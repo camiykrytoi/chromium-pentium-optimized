@@ -6,11 +6,17 @@ set(CMAKE_CXX_STANDARD 17)
 # 'WIN32' flag tells CMake to use WinMain and /SUBSYSTEM:WINDOWS
 add_executable(LightBrowser WIN32 src/main.cpp)
 
-# Find WebView2 installed by nuget
+# Find WebView2 and WIL installed by nuget
 file(GLOB WEBVIEW2_DIR "${CMAKE_SOURCE_DIR}/packages/Microsoft.Web.WebView2.*")
+file(GLOB WIL_DIR "${CMAKE_SOURCE_DIR}/packages/Microsoft.Windows.ImplementationLibrary.*")
+
 if(WEBVIEW2_DIR)
     target_include_directories(LightBrowser PRIVATE "${WEBVIEW2_DIR}/build/native/include")
     target_link_directories(LightBrowser PRIVATE "${WEBVIEW2_DIR}/build/native/x64")
+endif()
+
+if(WIL_DIR)
+    target_include_directories(LightBrowser PRIVATE "${WIL_DIR}/include")
 endif()
 
 target_link_libraries(LightBrowser PRIVATE user32.lib shell32.lib WebView2Loader.dll)
