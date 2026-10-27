@@ -11,6 +11,7 @@ jobs:
           nuget install Microsoft.Windows.ImplementationLibrary -OutputDirectory packages
       - name: Build
         run: |
+          ls -R packages/Microsoft.Web.WebView2*
           mkdir build
           cd build
           cmake ..
