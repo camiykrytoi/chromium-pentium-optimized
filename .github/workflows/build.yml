@@ -5,13 +5,17 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install Dependencies
+        run: |
+          nuget install Microsoft.Web.WebView2 -OutputDirectory packages
       - name: Build
         run: |
           mkdir build
           cd build
           cmake ..
           cmake --build . --config Release
-      - uses: actions/upload-artifact@v4
+      - name: Upload
+        uses: actions/upload-artifact@v4
         with:
           name: LightBrowser
           path: build/Release/LightBrowser.exe
